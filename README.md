@@ -1,27 +1,37 @@
-# FirebaseServerlessAngularWithAngularFire
+# Firebase - Serverless Angular With AngularFire
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.6.
+Design and build Angular applications using a Serverless Architecture by leveraging the whole Firebase ecosystem: this includes the Firestore NoSQL DataStore database, Firebase Security Rules, Firebase Hosting, Firebase Storage and Firebase Cloud Functions.
 
-## Development server
+**Objectives**
+* Serverless Architecture Design
+* NoSql Database (Firestore)
+* Serverless Angular development with AngularFire
+* Serverless File Upload with Firebase Storage
+* a full drop-in Authentication solution: Firebase UI and Firebase Authentication
+* Secure client-side data modification operations with Firestore Security Rules
+* High performance, free SSL hosting with Firebase Hosting
+* Image processing with Firebase Cloud Functions
+* Database Triggers with Firebase Cloud Functions
+* REST endpoints with Firebase Cloud Functions
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+**Table of Contents**
 
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+* Introduction to NoSQL data modeling
+* Documents vs Collections
+* Firestore Unique Identifiers
+* Querying a database using the Firebase SDK
+* Angular Service Layer Design with AngularFire
+* Offline support
+* Pagination
+* Indexes, Composite Indexes
+* Data Modification with AngularFire
+* Transactions
+* Multi-path Updates
+* Authentication with Firebase Authentication
+* Securing Database access with Firebase Security Rules
+* Production Deployment with Firebase Hosting
+* Image file upload with Firebase Storage
+* Firebase Storage Rules
+* Server-side image processing with Firebase Cloud Functions
+* Denormalization is normal - supporting multiple data views
+* Firebase Could Functions HTTP endpoints
