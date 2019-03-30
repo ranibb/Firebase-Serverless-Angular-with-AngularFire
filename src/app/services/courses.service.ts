@@ -14,13 +14,15 @@ export class CoursesService {
 
   loadAllCourses(): Observable<Course[]> {
     return this.db.collection('courses', ref => ref
-      .orderBy('seqNo')
+      // .orderBy('seqNo')
       // .where('seqNo', '>', 2)
       // .where('seqNo', '<=', 5)
       // .startAt(0)
       // .startAfter(0)
       // .endAt(5)
       // .where('categories', 'array-contains', 'BEGINNER')
+      .where('seqNo', '==', 5)
+      .where('lessonsCount', '>=', 5)
       )
       .snapshotChanges()
       .pipe(
