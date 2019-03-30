@@ -14,16 +14,8 @@ export class CoursesService {
 
   loadAllCourses(): Observable<Course[]> {
     return this.db.collection('courses', ref => ref
-      // .orderBy('seqNo')
-      // .where('seqNo', '>', 2)
-      // .where('seqNo', '<=', 5)
-      // .startAt(0)
-      // .startAfter(0)
-      // .endAt(5)
-      // .where('categories', 'array-contains', 'BEGINNER')
-      .where('seqNo', '==', 5)
-      .where('lessonsCount', '>=', 5)
-      )
+      .orderBy('seqNo')
+    )
       .snapshotChanges()
       .pipe(
         map(snaps => {
@@ -35,6 +27,25 @@ export class CoursesService {
           })
         }),
         first()
+      );
+  }
+
+  findCourseByUrl(courseUrl: string): Observable<Course> {
+    return this.db.collection('courses', ref => ref
+      .where('url', '==', courseUrl)
+    )
+      .snapshotChanges()
+      .pipe(
+        map(snaps => {
+          const courses = snaps.map(snap => {
+            return <Course>{
+              id: snap.payload.doc.id,
+              ...snap.payload.doc.data()
+            }
+          })
+          return courses.length == 1 ? courses[0] : undefined
+        }),
+        first() // Important for routing to complete
       );
   }
 }
