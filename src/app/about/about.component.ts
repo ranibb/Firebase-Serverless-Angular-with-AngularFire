@@ -60,8 +60,8 @@ export class AboutComponent implements OnInit {
    * Running a transaction to read the data ensures that while the method is running on the 
    * client side that no concurrent process is going to modify this data on the database.
    */
-  runTransaction() {
-    this.db.firestore.runTransaction(async transaction => {
+  async runTransaction() {
+    const newCounter = await this.db.firestore.runTransaction(async transaction => {
 
       console.log('Running transaction...');
 
@@ -73,9 +73,14 @@ export class AboutComponent implements OnInit {
 
       // Doing a write operation while we are in the transaction..
       const lessonsCount = course.lessonsCount + 1;
-      transaction.update(courseRef, {lessonsCount: lessonsCount})
+      transaction.update(courseRef, { lessonsCount: lessonsCount })
 
-    })
+      // get back the new value
+      return lessonsCount;
+
+    });
+    console.log('result lessons count = ', newCounter);
+    
   }
 
 }
