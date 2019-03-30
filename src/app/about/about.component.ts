@@ -38,6 +38,17 @@ export class AboutComponent implements OnInit {
     //   console.log(courses);
     // });
 
+    const courseRef = this.db.doc('/courses/eIGGTNyQvZBRUfXXr9dE')
+      .snapshotChanges()
+      .subscribe(snap => {
+        const course: any = snap.payload.data();
+        console.log('course.relatedCourseRef', course.relatedCourseRef);
+        
+      })
+    
+    const ref = this.db.doc('courses/R9fW9m7Y4wfnJjwAxAph')
+    .snapshotChanges()
+    .subscribe(doc => console.log('ref', doc.payload.ref));
   }
 
   save() {
