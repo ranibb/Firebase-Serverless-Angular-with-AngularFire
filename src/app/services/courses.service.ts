@@ -4,7 +4,7 @@ import { map, first } from 'rxjs/operators';
 import OrderByDirection = firebase.firestore.OrderByDirection;
 
 import { Course } from '../model/course';
-import { Observable } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { convertSnaps } from './db-utils';
 import { Lesson } from '../model/lesson';
 
@@ -53,5 +53,10 @@ export class CoursesService {
       map(snaps => convertSnaps<Lesson>(snaps)),
       first()
     )
+  }
+
+  saveCourse(courseId: string, changes: Partial<Course>): Observable<any> {
+    // turn promise into an observable using the rxjs from method
+    return from(this.db.doc(`courses/${courseId}`).update(changes));
   }
 }
