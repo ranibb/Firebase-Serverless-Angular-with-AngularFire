@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Course } from '../model/course';
 import { Lesson } from '../model/lesson';
 import { CoursesService } from '../services/courses.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'course',
@@ -17,6 +18,8 @@ export class CourseComponent implements OnInit {
 
   lastPageLoaded = 0;
 
+  loading = false;
+
   displayedColumns = ['seqNo', 'description', 'duration'];
 
   constructor(
@@ -29,13 +32,24 @@ export class CourseComponent implements OnInit {
 
     this.course = this.route.snapshot.data['course'];
 
-    this.courseService.findLessons(this.course.id).subscribe(lessons => this.lessons = lessons)
+    this.loading = true;
+
+    this.courseService.findLessons(this.course.id)
+    .pipe(
+      finalize(() => this.loading = false)
+    )
+    .subscribe(lessons => this.lessons = lessons)
 
   }
 
   loadMore() {
     this.lastPageLoaded++;
-    this.courseService.findLessons(this.course.id, 'asc', this.lastPageLoaded).subscribe(lessons => this.lessons = this.lessons.concat(lessons));
+    this.loading = true;
+    this.courseService.findLessons(this.course.id, 'asc', this.lastPageLoaded)
+    .pipe(
+      finalize(() => this.loading = false)
+    )
+    .subscribe(lessons => this.lessons = this.lessons.concat(lessons));
   }
 
 }
