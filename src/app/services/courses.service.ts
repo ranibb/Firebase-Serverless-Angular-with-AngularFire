@@ -4,6 +4,7 @@ import { map, first } from 'rxjs/operators';
 
 import { Course } from '../model/course';
 import { Observable } from 'rxjs';
+import { convertSnaps } from './db-utils';
 
 @Injectable({
   providedIn: 'root'
@@ -19,12 +20,7 @@ export class CoursesService {
       .snapshotChanges()
       .pipe(
         map(snaps => {
-          return snaps.map(snap => {
-            return <Course>{
-              id: snap.payload.doc.id,
-              ...snap.payload.doc.data()
-            }
-          })
+          return convertSnaps<Course>(snaps)
         }),
         first()
       );
@@ -37,12 +33,7 @@ export class CoursesService {
       .snapshotChanges()
       .pipe(
         map(snaps => {
-          const courses = snaps.map(snap => {
-            return <Course>{
-              id: snap.payload.doc.id,
-              ...snap.payload.doc.data()
-            }
-          })
+          const courses = convertSnaps<Course>(snaps)
           return courses.length == 1 ? courses[0] : undefined
         }),
         first() // Important for routing to complete
