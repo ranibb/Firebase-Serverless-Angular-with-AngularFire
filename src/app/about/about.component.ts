@@ -47,13 +47,35 @@ export class AboutComponent implements OnInit {
 
     // Perform a batched write that is going to modify these 2 documents in one single atomic transaction
     const bacth = this.db.firestore.batch();
-    bacth.update(ngrxCourseRef, {titles: {description: 'NgRx Course'}});
-    bacth.update(angularMaterialCourseRef, {titles: {description: 'Angular Material Course'}});
+    bacth.update(ngrxCourseRef, { titles: { description: 'NgRx Course' } });
+    bacth.update(angularMaterialCourseRef, { titles: { description: 'Angular Material Course' } });
 
     // bacth.commit(); // Gets us back a promise
 
     const batch$ = of(bacth.commit()); // convert it into a promise using the of operator
     batch$.subscribe() // call subscribe to trigger the batch commit
+  }
+
+  /**
+   * Running a transaction to read the data ensures that while the method is running on the 
+   * client side that no concurrent process is going to modify this data on the database.
+   */
+  runTransaction() {
+    this.db.firestore.runTransaction(async transaction => {
+
+      console.log('Running transaction...');
+
+      const courseRef = this.db.doc('/courses/eIGGTNyQvZBRUfXXr9dE').ref;
+
+      // While reading the data, create a read lock!
+      const snap = await transaction.get(courseRef);
+      const course = <Course>snap.data();
+
+      // Doing a write operation while we are in the transaction..
+      const lessonsCount = course.lessonsCount + 1;
+      transaction.update(courseRef, {lessonsCount: lessonsCount})
+
+    })
   }
 
 }
