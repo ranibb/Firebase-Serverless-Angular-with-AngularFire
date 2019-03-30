@@ -43,15 +43,13 @@ export class CourseDialogComponent implements OnInit {
 
     this.coursesService.saveCourse(this.course.id, { titles: changes })
       .subscribe(
-        () => this.dialogRef.close(this.form.value)
+        () => this.dialogRef.close(this.form.value) // we are passing a value in case of clicking the save button
       );
-
-    this.dialogRef.close(this.form.value);
 
   }
 
   close() {
-    this.dialogRef.close();
+    this.dialogRef.close(); // we are not passing a value in case of clicking the close button
   }
 
 }
