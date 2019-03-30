@@ -13,7 +13,16 @@ export class CoursesService {
   constructor(private db: AngularFirestore) { }
 
   loadAllCourses(): Observable<Course[]> {
-    return this.db.collection('courses').snapshotChanges()
+    return this.db.collection('courses', ref => ref
+      .orderBy('seqNo')
+      // .where('seqNo', '>', 2)
+      // .where('seqNo', '<=', 5)
+      // .startAt(0)
+      // .startAfter(0)
+      // .endAt(5)
+      // .where('categories', 'array-contains', 'BEGINNER')
+      )
+      .snapshotChanges()
       .pipe(
         map(snaps => {
           return snaps.map(snap => {
