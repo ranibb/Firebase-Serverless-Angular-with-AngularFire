@@ -29,6 +29,9 @@
         <mat-icon>menu</mat-icon>
       </button>
       <div class="filler"></div>
+      <ng-container *ngIf ="(pictureUrl$ | async) as pictureUrl">
+        <img class="user-avatar" [src]="pictureUrl">
+      </ng-container>
     </div>
   </mat-toolbar>
   <router-outlet></router-outlet>
