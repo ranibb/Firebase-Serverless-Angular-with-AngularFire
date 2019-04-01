@@ -1,0 +1,139 @@
+//***********************************************************************
+// remove some of the repetition we have in code below by using functions
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	
+    // function to check if the user is authenticated (logged in) or not
+    function isAuthenticated() {
+    	return request.auth.uid != null;
+    }
+    
+    // Validate the data contained inside the field
+    function isNonEmptyString(fieldName) {
+    	return request.resource.data[fieldName] is string 
+      			&& request.resource.data[fieldName].size() > 0;
+    }
+    
+    // Validate if a course document is valid by checking if some field meets our requirements
+    function isValidCourse() {
+    	// 'request.resource' object is going to contain the new version of the document that 
+    	// we are editing in the current request. Let’s say for example, on this request, 
+    	// the resource object is going to contain the complete data of the document that 
+    	// was on the database already available plus the new description property that 
+    	// is going to be overwritten with the value in the ongoing requests. So, this is 
+    	// a sort of a potential not yet committed to the database new version of the 
+    	// document being edited. If by some reason we want to access the old still current 
+    	// version of the document that is available on the database, then instead of the 
+    	// 'request.resource' object, we simply access the 'resource' object. So 'resource'
+    	// points to the current version of the document in the database before the ongoing
+    	// request has been processed.
+    	return request.resource.data.seqNo is number 
+      			&& request.resource.data.lessonsCount is number 
+            && request.resource.data.lessonsCount > 0
+            && isNonEmptyString('url')
+    }
+    
+    // Check if the user is admin or not
+    function isAdmin() {
+    	return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    // function to adapt the access for the users to courses and lessons
+    function isKnownUser() {
+    	return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+    
+    // make sure that this data is only accessible for example from a firebase cloud function or from the console of the database.
+    match /users/{userId} {
+    
+    	// Deny all read and write access from the client side
+    	allow read, write: if false;
+
+    }
+  
+  	// match for courses
+		match /courses/{courseId} {
+    
+    	allow read: if isKnownUser();
+      allow write: if isAdmin() 
+      								&& isValidCourse() 
+                      && resource.data.status == 'draft'; // Accept modification to a course document if the course still in draft mood
+      
+      // match for the nested lessons path as well
+      match /lessons/{lessonId} {
+      	allow read: if isKnownUser();
+        allow write: if isAdmin() 
+        							&& isValidCourse()
+                      && resource.data.status == 'draft'; // Accept modification to a course document if the course still in draft mood
+      }
+      
+    }
+  }
+}
+//***********************************************************************
+// service cloud.firestore {
+//   match /databases/{database}/documents {
+// 		match /courses/{courseId} {
+    
+//     	// check if the user is authenticated (logged in) or not
+//     	allow read: if request.auth.uid != null;
+      
+//       // match for lessons path as well
+//       match /lessons/{lessonId} {
+//       	allow read: if request.auth.uid != null;
+//       }
+//
+//     }
+//   }
+// }
+//***********************************************************************
+// service cloud.firestore {
+//   match /databases/{database}/documents/courses/1VfptzJnTyFB4gtc3uJg {
+//   	allow read;
+//     allow write;
+//   }
+//   match /databases/{database}/documents/courses/{courseId} {
+//   	allow read;
+//     allow write: if false;
+//   }
+// }
+//***********************************************************************
+// **Instead of doing 2 matchs , we can minimize them into one match**
+// service cloud.firestore {
+//   match /databases/{database}/documents/courses/{courseId} {
+//   	allow read;
+//     allow write: if courseId == '1VfptzJnTyFB4gtc3uJg';
+//   }
+// }
+//***********************************************************************
+// service cloud.firestore {
+//   match /databases/{database}/documents/courses/{courseId} {
+//   	allow get, list; // Equivalent to: allow read;
+//     allow create;
+//     allow delete: if false; // Prevent users from deleting a document
+//     allow update: if courseId == '1VfptzJnTyFB4gtc3uJg';
+//   }
+// }
+//***********************************************************************
+// **Nested match blocks**
+// service cloud.firestore {
+//   match /databases/{database}/documents {
+  
+//   	// Wildcard to match anyting goes along the root path
+//   	match /{restOfPath=**} {
+//     	allow read, write;
+//     }
+  	
+//     // match /users/{userId} {
+    
+//     // }
+  
+//   	match /courses/{courseId} {
+//       allow get, list; // Equivalent to: allow read;
+//       allow create;
+//       allow delete: if false; // Prevent users from deleting a document
+//       allow update: if courseId == '1VfptzJnTyFB4gtc3uJg';   
+//     }
+//   }
+// }
+//***********************************************************************
