@@ -6,6 +6,10 @@
   <mat-form-field>
     <textarea matInput placeholder="Description" formControlName="longDescription"></textarea>
   </mat-form-field>
+  <div class="course-image-upload">
+    <span>Course:</span>
+    <input type="file" (change)="uploadFile($event)">
+  </div>
 </mat-dialog-content>
 <mat-dialog-actions>
   <button class="mat-raised-button" (click)="close()">Close</button>
