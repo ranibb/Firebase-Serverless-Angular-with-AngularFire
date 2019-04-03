@@ -76,10 +76,14 @@ export class CourseDialogComponent implements OnInit {
            * generating the download URL using the storage service.
            */
           () => this.storage.ref(filePath).getDownloadURL()
-          )
-        );
+        )
+      );
 
-    this.downloadUrl$.subscribe(console.log)
+    const saveUrl$ = this.downloadUrl$.pipe(
+      concatMap(url => this.coursesService.saveCourse(this.course.id, { uploadedImageUrl: url }))
+    );
+
+    saveUrl$.subscribe()
   }
 
   ngOnInit() {

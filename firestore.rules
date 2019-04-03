@@ -57,14 +57,14 @@ service cloud.firestore {
     	allow read: if isKnownUser();
       allow write: if isAdmin() 
       								&& isValidCourse() 
-                      && resource.data.status == 'draft'; // Accept modification to a course document if the course still in draft mood
+                      // && resource.data.status == 'draft'; // Accept modification to a course document if the course still in draft mood
       
       // match for the nested lessons path as well
       match /lessons/{lessonId} {
       	allow read: if isKnownUser();
         allow write: if isAdmin() 
         							&& isValidCourse()
-                      && resource.data.status == 'draft'; // Accept modification to a course document if the course still in draft mood
+                      // && resource.data.status == 'draft'; // Accept modification to a course document if the course still in draft mood
       }
       
     }
