@@ -64,3 +64,20 @@ firebase init
 firebase deploy
 ```
 
+**Adding firebase cloud functions to our project:**
+
+* In the terminal run the command `firebase init` and select the option `Functions: Configure and deploy Cloud Functions`
+
+*  An hello world example of a cloud function in the functions/index.ts file: An HTTP event and the API for responding to this type of events is very similar to building an express route handler in node.js
+
+```TypeScript
+export const helloWorld = functions.https.onRequest((request, response) => {
+  response.status(200).json({ message: 'Hello World' });
+});
+```
+
+* To build our firebase cloud function locally, cd to the functions folder and run the following command: `npm run build`
+
+* The above command will call the TypeScript compiler tsc and according to configuration of the complier in the functions/package.json will generate a lib folder which will contain the output of our firebase cloud function build.
+
+* Deploy our cloud function by running the following command: `firebase deploy` which is going to deploy everything along the way.
