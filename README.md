@@ -81,3 +81,24 @@ export const helloWorld = functions.https.onRequest((request, response) => {
 * The above command will call the TypeScript compiler tsc and according to configuration of the complier in the functions/package.json will generate a lib folder which will contain the output of our firebase cloud function build.
 
 * Deploy our cloud function by running the following command: `firebase deploy` which is going to deploy everything along the way.
+
+**Firebase Cloud Functions Local Emulator and Production Deployment**
+
+From within the functions folder, run the following commands:
+```
+npm run build
+npm run serve 
+```
+`npm run serve` builds the project and call firebase serve which is going to startup a local server. Now we have a URL to the function end point locally.
+
+*notice we need to use the full URL end point + '/courses' in order to trigger this route handler*
+
+After testing our firebase cloud function, then we are ready to deploy it to production:
+```
+firebase deploy --only functions
+```
+
+If we need to troubleshot our deployment, we can do so using the Views logs options available at the level of firebase dashboard. Also, we can obtain the same logs locally in the command line by running the following command inside the functions folder
+```
+firebase functions:log
+```

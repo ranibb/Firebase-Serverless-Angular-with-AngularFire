@@ -1,12 +1,28 @@
 import * as functions from 'firebase-functions';
+import { db } from './init';
 
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
+import * as express from 'express';
+const cors = require('cors');
 
-export const helloWorld = functions.https.onRequest((request, response) => {
-  response.status(200).json({ message: 'Hello World' });
+const app = express();
+
+app.use(cors({origin: true}));
+
+app.get('/courses',async (request, response) => {
+
+  const snaps = await db.collection('courses').get();
+
+  const courses:any[] = [];
+
+  snaps.forEach(snap => courses.push(snap.data()));
+
+  response.status(200).json({courses});
+
 });
+
+/**
+ * In order to deploy the above express route as a firebase cloud fucntion, 
+ * we simply need to export. We are going to declare a constant getCourses(the name of firebase cloud function)
+ * as being the implementation of http cloud function.
+ */
+export const getCourses = functions.https.onRequest(app);
