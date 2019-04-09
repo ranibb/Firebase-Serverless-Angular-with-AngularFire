@@ -31,3 +31,5 @@ export const getCourses = functions.https.onRequest(app);
 export { onAddLesson } from './lessons-counter';
 
 export { onDeleteLesson } from './lessons-counter';
+
+export { resizeThumbnail } from './image-upload';
