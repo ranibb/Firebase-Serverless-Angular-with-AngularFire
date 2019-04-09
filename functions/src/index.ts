@@ -6,17 +6,17 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(cors({origin: true}));
+app.use(cors({ origin: true }));
 
-app.get('/courses',async (request, response) => {
+app.get('/courses', async (request, response) => {
 
   const snaps = await db.collection('courses').get();
 
-  const courses:any[] = [];
+  const courses: any[] = [];
 
   snaps.forEach(snap => courses.push(snap.data()));
 
-  response.status(200).json({courses});
+  response.status(200).json({ courses });
 
 });
 
@@ -26,3 +26,6 @@ app.get('/courses',async (request, response) => {
  * as being the implementation of http cloud function.
  */
 export const getCourses = functions.https.onRequest(app);
+
+// In order to deploy the onAddLesson as a firebase cloud function, we simply need to export it.
+export { onAddLesson } from './lessons-counter';
