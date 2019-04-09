@@ -29,3 +29,5 @@ export const getCourses = functions.https.onRequest(app);
 
 // In order to deploy the onAddLesson as a firebase cloud function, we simply need to export it.
 export { onAddLesson } from './lessons-counter';
+
+export { onDeleteLesson } from './lessons-counter';

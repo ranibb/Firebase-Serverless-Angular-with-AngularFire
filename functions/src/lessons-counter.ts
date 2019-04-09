@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions';
 import { db } from './init';
 
 // This type of database trigger callback functions can’t be tested locally. So, they need to be deployed to production.
+// onCreate
 export const onAddLesson = functions.firestore.document('courses/{courseId}/lessons/{lessonId}')
   .onCreate(
     /**
@@ -18,6 +19,18 @@ export const onAddLesson = functions.firestore.document('courses/{courseId}/less
 
       return courseTransaction(snap, course => {
         return { lessonsCount: course.lessonsCount + 1 }
+      })
+
+    }
+  );
+
+// onDelete
+export const onDeleteLesson = functions.firestore.document('courses/{courseId}/lessons/{lessonId}')
+  .onDelete(
+    async (snap, context) => {
+      console.log("Running onDeleteLesson trigger ...");
+      return courseTransaction(snap, course => {
+        return { lessonsCount: course.lessonsCount - 1 }
       })
 
     }
