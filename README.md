@@ -102,3 +102,10 @@ If we need to troubleshot our deployment, we can do so using the Views logs opti
 ```
 firebase functions:log
 ```
+
+**Notes:**
+
+In order to perform a command line invocation using a promise based API, we are going to add a new package to our project:
+```
+npm install --save child-process-promise
+```

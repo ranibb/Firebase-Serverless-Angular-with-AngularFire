@@ -3,6 +3,7 @@ const path = require('path');
 const { Storage } = require('@google-cloud/storage');
 const os = require('os');
 const mkdirp = require('mkdirp-promise');
+const spawn = require('child-process-promise').spawn;
 
 const gcs = new Storage();
 
@@ -23,7 +24,15 @@ export const resizeThumbnail = functions.storage.object()
 
     console.log('Thumbnail generation started: ', fileFullPath, fileDir, fileName);
 
-    if (!contentType.startsWith('image/')) {
+    /**
+     * The upload file back to google cloud storage (the thumbnail generated using image magic) 
+     * will accidentally trigger another execution of our firebase cloud function, so we will 
+     * enter an infinite loop where we are constantly applying image magic to the output of the 
+     * previous execution. In order to prevent that, we are going to do an early exist of our 
+     * processing; in our case when the file corresponds to a thumbnail, we can check that if 
+     * the file starts with 'thumb_'.
+     */
+    if (!contentType.startsWith('image/') || fileName.startsWith('thumb_')) {
       console.log('Exiting image processing');
       return null;
     }
@@ -53,6 +62,38 @@ export const resizeThumbnail = functions.storage.object()
     console.log('Downloading image to: ', tempLocalFile);
     // Now, perform the download (use await in order to trigger the download and wait for its completion).
     await orginalImageFile.download({ destination: tempLocalFile })
+
+    // Generate a thumbnail using ImageMagick
+
+    const outputFilePath = path.join(fileDir, 'thumb_' + fileName);
+    const outputFile = path.join(os.tmpdir(), outputFilePath);
+    console.log('Generating a thumbnail to:', outputFile);
+
+    /**
+     * The spawn service is going allow us to invoke commands from the command line using a 
+     * promise based API. For example:
+     * `convert -thumbnail 510X287 serverless-angular.png > thumb_serverless-angular.png`
+     * So, spawn is going to get us back a promise that when resolved means that the command 
+     * finished successfully, so let’s call await for the processing to be completed. The
+     * spawn also allow us to get access directly to the output of the command. For that we 
+     * would pass in here an extra configuration object where we will define what we want to
+     * capture from the command line execution. So, we can capture for example the 'stdout'
+     * (standard output of the command) and the 'stderr' (standard error of the command).
+     */
+    await spawn('convert', [tempLocalFile, '-thumbnail', '510X287 >', outputFile], {
+      capture: ['stdout', 'stderr']
+    });
+
+    /**
+     * Upload the Thumbnail Back to storage. For that, the first thing we need to do is to 
+     * define the metadata of the uploaded file.
+     */
+    const metadata = {
+      contentType: object.contentType,
+      cacheControl: 'public,max-age=2592000, s-maxage=2592000'
+    }
+    console.log('Uploading the thumbnail to storage:', outputFile, outputFilePath);
+    await bucket.upload(outputFile, { destination: outputFilePath, metadata })
 
     return null;
   })
