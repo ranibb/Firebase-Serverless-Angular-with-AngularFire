@@ -18,7 +18,8 @@ export class CourseDialogComponent implements OnInit {
   description: string;
   course: Course;
   uploadPercent$: Observable<number>;
-  downloadUrl$: Observable<string>;
+  // No need to do the download in the frontend as this is now done in firebase cloud function.
+  // downloadUrl$: Observable<string>;
 
   constructor(
     private fb: FormBuilder,
@@ -56,34 +57,34 @@ export class CourseDialogComponent implements OnInit {
      * To make sure that we get the correct download URL, we need to wait for the upload 
      * process to complete.
     */
-    this.downloadUrl$ = task.snapshotChanges()
-      .pipe(
-        /**
-         * // To make sure that this observable has completed, let's pipe it with last operator. 
-         * So, the last operator is going to subscribe to the snapshotChanges observable and 
-         * its going to wait for it to complete before proceeding with the observable chain. 
-         * So, after the last observable we are going to want to generate a download URL.
-         */
-        last(),
-        /**
-         * Now that we have the last value emitted by the upload task observable, we want to 
-         * switch from it into the getDownloadURL() observable. So, in order to change from 
-         * observable to a new observable, we are going to use a higher order mapping operator.
-         */
-        concatMap(
-          /**
-           * So, in response to the latest value emitted by that observable, we will be 
-           * generating the download URL using the storage service.
-           */
-          () => this.storage.ref(filePath).getDownloadURL()
-        )
-      );
+    // this.downloadUrl$ = task.snapshotChanges()
+    //   .pipe(
+    //     /**
+    //      * // To make sure that this observable has completed, let's pipe it with last operator. 
+    //      * So, the last operator is going to subscribe to the snapshotChanges observable and 
+    //      * its going to wait for it to complete before proceeding with the observable chain. 
+    //      * So, after the last observable we are going to want to generate a download URL.
+    //      */
+    //     last(),
+    //     /**
+    //      * Now that we have the last value emitted by the upload task observable, we want to 
+    //      * switch from it into the getDownloadURL() observable. So, in order to change from 
+    //      * observable to a new observable, we are going to use a higher order mapping operator.
+    //      */
+    //     concatMap(
+    //       /**
+    //        * So, in response to the latest value emitted by that observable, we will be 
+    //        * generating the download URL using the storage service.
+    //        */
+    //       () => this.storage.ref(filePath).getDownloadURL()
+    //     )
+    //   );
 
-    const saveUrl$ = this.downloadUrl$.pipe(
-      concatMap(url => this.coursesService.saveCourse(this.course.id, { uploadedImageUrl: url }))
-    );
+    // const saveUrl$ = this.downloadUrl$.pipe(
+    //   concatMap(url => this.coursesService.saveCourse(this.course.id, { uploadedImageUrl: url }))
+    // );
 
-    saveUrl$.subscribe()
+    // saveUrl$.subscribe()
   }
 
   ngOnInit() {
