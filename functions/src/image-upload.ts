@@ -1,9 +1,11 @@
 import * as functions from 'firebase-functions';
+import { db } from './init';
 const path = require('path');
 const { Storage } = require('@google-cloud/storage');
 const os = require('os');
 const mkdirp = require('mkdirp-promise');
 const spawn = require('child-process-promise').spawn;
+const rimraf = require('rimraf');
 
 const gcs = new Storage();
 
@@ -93,7 +95,32 @@ export const resizeThumbnail = functions.storage.object()
       cacheControl: 'public,max-age=2592000, s-maxage=2592000'
     }
     console.log('Uploading the thumbnail to storage:', outputFile, outputFilePath);
-    await bucket.upload(outputFile, { destination: outputFilePath, metadata })
+    const uploadedFiles = await bucket.upload(outputFile, { destination: outputFilePath, metadata })
 
-    return null;
+    /**
+     * Delete the file that we created locally in order to prevent the file system from filling
+     * up over time. What we want to do essentially is execute the Unix command `rm -rf localtmpdir`.
+     * In order to execute this command, we need to install rimraf
+     */
+    rimraf.sync(tempLocalDir);
+
+    /**
+     * Delete the file that was originally uploaded by the user
+     */
+    await orginalImageFile.delete();
+
+    /**
+     * We are also going to create a download link to our thumbnail file. 
+     */
+    const thumbnail = uploadedFiles[0];
+    const url = await thumbnail.getSignedUrl({action: 'read', expires: new Date(3000, 0, 1)});
+    console.log('Generated signed url:', url);
+
+    /**
+     * We are going then to save that download link in the database.
+     */
+    const frags = fileFullPath.split('/');
+    const courseId = frags[1];
+    console.log('saving url to database: ' + courseId);
+    return db.doc(`courses/${courseId}`).update({uploadedImageUrl: url})
   })
